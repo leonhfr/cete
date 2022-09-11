@@ -1,0 +1,19 @@
+linters:
+  enable:
+    - errcheck
+    - exhaustive
+    - gosec
+    - gosimple
+    - govet
+    - ineffassign
+    - revive
+    - staticcheck
+    - typecheck
+    - unused
+
+issues:
+  include:
+    - EXC0005
+    - EXC0012
+    - EXC0014
+    - EXC0015

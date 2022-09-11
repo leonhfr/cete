@@ -1,0 +1,9 @@
+white:
+  engine: stockfish
+  options:
+    Hash: 32
+black:
+  engine: stockfish
+  options:
+    Hash: 32
+time: 500
