@@ -26,3 +26,7 @@ cete game ./test/data/stockfish.yaml
 ```
 
 An example of a configuration can be found in `/test/data`.
+
+## `/uci`
+
+`/uci` is directly copied from [github.com/notnil/chess](https://github.com/notnil/chess). Waiting on [this PR](https://github.com/notnil/chess/pull/114) to be merged before reverting to the main repository!

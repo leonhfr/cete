@@ -2,9 +2,16 @@
 package main
 
 import (
+	"context"
+	"os"
+	"os/signal"
+
 	"github.com/leonhfr/cete/cmd"
 )
 
 func main() {
-	cmd.Execute()
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+
+	cmd.Execute(ctx)
 }

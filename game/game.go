@@ -6,8 +6,8 @@ import (
 	"errors"
 	"time"
 
+	"github.com/leonhfr/cete/uci"
 	"github.com/notnil/chess"
-	"github.com/notnil/chess/uci"
 )
 
 // Input is a game play input.
@@ -42,6 +42,11 @@ func Run(ctx context.Context, input Input) (*chess.Game, error) {
 func runGame(ctx context.Context, input Input, white, black *uci.Engine) (*chess.Game, error) {
 	game := chess.NewGame()
 	for game.Outcome() == chess.NoOutcome {
+		select {
+		case <-ctx.Done():
+			return game, nil
+		default:
+		}
 
 		var move *chess.Move
 		var err error

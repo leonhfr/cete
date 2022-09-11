@@ -10,8 +10,8 @@ import (
 	"time"
 
 	ansi "github.com/fatih/color"
+	"github.com/leonhfr/cete/uci"
 	"github.com/notnil/chess"
-	"github.com/notnil/chess/uci"
 )
 
 func new(exec string, len int, color chess.Color, options map[string]string) (*uci.Engine, error) {

@@ -2,6 +2,7 @@
 package cmd
 
 import (
+	"context"
 	"os"
 	"time"
 
@@ -44,8 +45,8 @@ more easily test the honey badger chess engine.`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
-func Execute() {
-	err := rootCmd.Execute()
+func Execute(ctx context.Context) {
+	err := rootCmd.ExecuteContext(ctx)
 	if err != nil {
 		os.Exit(1)
 	}

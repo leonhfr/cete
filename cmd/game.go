@@ -67,6 +67,7 @@ func runGame(ctx context.Context, input game.Input, options options) error {
 	if options.pgn {
 		fmt.Printf("PGN:%s\n", g.String())
 	}
+
 	return nil
 }
 
