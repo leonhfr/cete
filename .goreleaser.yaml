@@ -1,0 +1,25 @@
+builds:
+  - id: cete
+    goos:
+      - linux
+      - darwin
+    ldflags:
+      - -s -w -X github.com/leonhfr/cete/cmd.version={{.Version}}
+archives:
+  - replacements:
+      darwin: MacOS
+      linux: Linux
+      amd64: 64-bit
+      386: 32-bit
+checksum:
+  name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - Merge pull request
+      - Merge branch
