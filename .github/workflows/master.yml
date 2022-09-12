@@ -23,6 +23,13 @@ jobs:
           cache: true
           go-version-file: go.mod
 
+      - name: Install stockfish
+        run: |
+          wget https://stockfishchess.org/files/stockfish_14.1_linux_x64.zip
+          unzip stockfish_14.1_linux_x64.zip
+          ln stockfish_14.1_linux_x64/stockfish_14.1_linux_x64 stockfish
+          chmod u+x stockfish
+
       - name: Lint
         uses: golangci/golangci-lint-action@v3
         with:
