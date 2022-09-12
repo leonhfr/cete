@@ -4,9 +4,11 @@ package game
 import (
 	"context"
 	"errors"
+	"io/fs"
 	"time"
 
 	"github.com/leonhfr/cete/pkg/engine"
+	"github.com/leonhfr/cete/pkg/live"
 	"github.com/leonhfr/cete/pkg/uci"
 	"github.com/notnil/chess"
 )
@@ -30,10 +32,6 @@ func Run(ctx context.Context, input Input) (*chess.Game, error) {
 	defer engine.Close(white)
 	defer engine.Close(black)
 
-	return runGame(ctx, input, white, black)
-}
-
-func runGame(ctx context.Context, input Input, white, black *uci.Engine) (*chess.Game, error) {
 	game := chess.NewGame()
 	for game.Outcome() == chess.NoOutcome {
 		select {
@@ -42,30 +40,77 @@ func runGame(ctx context.Context, input Input, white, black *uci.Engine) (*chess
 		default:
 		}
 
-		var move *chess.Move
-		var err error
-
-		switch game.Position().Turn() {
-		case chess.White:
-			move, err = engine.Search(white, game.Position(), input.Time)
-		case chess.Black:
-			move, err = engine.Search(black, game.Position(), input.Time)
-		case chess.NoColor:
-			err = errors.New("expected valid color")
-		}
-
+		_, err := playMove(game, input.Time, white, black)
 		if err != nil {
-			return nil, err
-		}
-
-		if err := game.Move(move); err != nil {
-			return nil, err
+			return game, err
 		}
 	}
 
 	return game, nil
 }
 
+// RunWithLive plays a game and broadcast it to a live view.
+func RunWithLive(ctx context.Context, input Input, static fs.FS, port int) (*chess.Game, error) {
+	view, err := live.New(static, port)
+	if err != nil {
+		return nil, err
+	}
+	defer view.Shutdown()
+
+	white, black, err := startEngines(input)
+	if err != nil {
+		return nil, err
+	}
+	defer engine.Close(white)
+	defer engine.Close(black)
+
+	view.Wait()
+
+	game := chess.NewGame()
+	for game.Outcome() == chess.NoOutcome {
+		select {
+		case <-ctx.Done():
+			return game, nil
+		default:
+		}
+
+		move, err := playMove(game, input.Time, white, black)
+		if err != nil {
+			return game, err
+		}
+
+		view.Update(move, game.Position())
+	}
+
+	return game, nil
+}
+
+// playMove plays a single move.
+func playMove(game *chess.Game, t time.Duration, white, black *uci.Engine) (*chess.Move, error) {
+	var move *chess.Move
+	var err error
+
+	switch game.Position().Turn() {
+	case chess.White:
+		move, err = engine.Search(white, game.Position(), t)
+	case chess.Black:
+		move, err = engine.Search(black, game.Position(), t)
+	case chess.NoColor:
+		err = errors.New("expected valid color")
+	}
+
+	if err != nil {
+		return move, err
+	}
+
+	if err := game.Move(move); err != nil {
+		return move, err
+	}
+
+	return move, nil
+}
+
+// startEngines starts up both white and black engines
 func startEngines(input Input) (*uci.Engine, *uci.Engine, error) {
 	len := engine.NameLength(input.WhiteEngine, input.BlackEngine)
 

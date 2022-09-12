@@ -10,6 +10,7 @@ import (
 
 	"github.com/fatih/structs"
 	"github.com/leonhfr/cete/pkg/game"
+	"github.com/notnil/chess"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )
@@ -63,7 +64,15 @@ func init() {
 
 // runGame runs a game
 func runGame(ctx context.Context, static fs.FS, input game.Input, options options) error {
-	g, err := game.Run(ctx, input)
+	var g *chess.Game
+	var err error
+
+	if options.broadcast {
+		g, err = game.RunWithLive(ctx, input, static, options.port)
+	} else {
+		g, err = game.Run(ctx, input)
+	}
+
 	if err != nil {
 		return err
 	}
