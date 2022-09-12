@@ -3,11 +3,18 @@ package cmd
 
 import (
 	"context"
+	"io/fs"
 	"os"
 	"time"
 
 	"github.com/leonhfr/cete/game"
 	"github.com/spf13/cobra"
+)
+
+type key int
+
+const (
+	staticKey key = iota
 )
 
 type options struct {
@@ -38,6 +45,7 @@ more easily test the honey badger chess engine.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runGame(
 			cmd.Context(),
+			getStatic(cmd),
 			getInput(cmd),
 			getOptions(cmd),
 		)
@@ -45,7 +53,8 @@ more easily test the honey badger chess engine.`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
-func Execute(ctx context.Context) {
+func Execute(ctx context.Context, static fs.FS) {
+	ctx = context.WithValue(ctx, staticKey, static)
 	err := rootCmd.ExecuteContext(ctx)
 	if err != nil {
 		os.Exit(1)
@@ -66,6 +75,7 @@ func init() {
 func getInput(cmd *cobra.Command) game.Input {
 	white, _ := cmd.Flags().GetString(white)
 	black, _ := cmd.Flags().GetString(black)
+
 	return game.Input{
 		WhiteEngine: white,
 		BlackEngine: black,
@@ -75,7 +85,12 @@ func getInput(cmd *cobra.Command) game.Input {
 
 func getOptions(cmd *cobra.Command) options {
 	pgn, _ := cmd.PersistentFlags().GetBool(pgn)
+
 	return options{
 		pgn: pgn,
 	}
+}
+
+func getStatic(cmd *cobra.Command) fs.FS {
+	return cmd.Context().Value(staticKey).(fs.FS)
 }

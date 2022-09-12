@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"time"
 
@@ -40,8 +41,10 @@ options every call.`,
 		if err != nil {
 			return err
 		}
+
 		return runGame(
 			cmd.Context(),
+			getStatic(cmd),
 			game.Input{
 				WhiteEngine:  input.White.Engine,
 				BlackEngine:  input.Black.Engine,
@@ -58,7 +61,7 @@ func init() {
 	rootCmd.AddCommand(gameCmd)
 }
 
-func runGame(ctx context.Context, input game.Input, options options) error {
+func runGame(ctx context.Context, static fs.FS, input game.Input, options options) error {
 	g, err := game.Run(ctx, input)
 	if err != nil {
 		return err
