@@ -17,14 +17,19 @@ const (
 	staticKey key = iota
 )
 
+// options represents the global options
 type options struct {
-	pgn bool
+	broadcast bool
+	noPGN     bool
+	port      int
 }
 
 const (
-	black = "black"
-	pgn   = "pgn"
-	white = "white"
+	black     = "black"
+	broadcast = "broadcast"
+	noPGN     = "no-pgn"
+	port      = "port"
+	white     = "white"
 )
 
 var version = "0.0.0"
@@ -63,7 +68,9 @@ func Execute(ctx context.Context, static fs.FS) {
 
 func init() {
 	// Persistent flags
-	rootCmd.PersistentFlags().Bool(pgn, false, "print game in PGN format")
+	rootCmd.PersistentFlags().BoolP(broadcast, "b", false, "live broadcast in a web view")
+	rootCmd.PersistentFlags().Bool(noPGN, false, "do not print game in PGN format")
+	rootCmd.PersistentFlags().IntP(port, "p", 6061, "port used for lived broadcast")
 
 	// Local flags
 	rootCmd.Flags().String(white, "stockfish", "path or command to the white engine")
@@ -72,6 +79,7 @@ func init() {
 	_ = rootCmd.MarkFlagFilename(black)
 }
 
+// getInput returns a game.Input from the root command local flags
 func getInput(cmd *cobra.Command) game.Input {
 	white, _ := cmd.Flags().GetString(white)
 	black, _ := cmd.Flags().GetString(black)
@@ -83,14 +91,20 @@ func getInput(cmd *cobra.Command) game.Input {
 	}
 }
 
+// getOptions returns the options from the root command persistent flags
 func getOptions(cmd *cobra.Command) options {
-	pgn, _ := cmd.PersistentFlags().GetBool(pgn)
+	broadcast, _ := cmd.PersistentFlags().GetBool(broadcast)
+	noPGN, _ := cmd.PersistentFlags().GetBool(noPGN)
+	port, _ := cmd.PersistentFlags().GetInt(port)
 
 	return options{
-		pgn: pgn,
+		broadcast: broadcast,
+		noPGN:     noPGN,
+		port:      port,
 	}
 }
 
+// getStatic returns the static filesystem from the root command context
 func getStatic(cmd *cobra.Command) fs.FS {
 	return cmd.Context().Value(staticKey).(fs.FS)
 }

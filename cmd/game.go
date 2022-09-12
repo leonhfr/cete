@@ -37,7 +37,7 @@ options every call.`,
 	Args:    cobra.MatchAll(cobra.ExactArgs(1)),
 	Example: "  cete game ./game.yaml -b",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		input, err := parseYaml(args[0])
+		input, err := parseYAML(args[0])
 		if err != nil {
 			return err
 		}
@@ -61,20 +61,22 @@ func init() {
 	rootCmd.AddCommand(gameCmd)
 }
 
+// runGame runs a game
 func runGame(ctx context.Context, static fs.FS, input game.Input, options options) error {
 	g, err := game.Run(ctx, input)
 	if err != nil {
 		return err
 	}
 
-	if options.pgn {
+	if !options.noPGN {
 		fmt.Printf("PGN:%s\n", g.String())
 	}
 
 	return nil
 }
 
-func parseYaml(filename string) (*yamlInput, error) {
+// parseYAML parses and validates the yaml file input
+func parseYAML(filename string) (*yamlInput, error) {
 	var input *yamlInput
 	contents, err := os.ReadFile(filename)
 	if err != nil {
