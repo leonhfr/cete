@@ -1,3 +1,7 @@
+run:
+  skip-dirs:
+    - "uci"
+
 linters:
   enable:
     - errcheck
