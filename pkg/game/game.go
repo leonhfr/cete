@@ -5,6 +5,8 @@ import (
 	"context"
 	"errors"
 	"io/fs"
+	"log"
+	"os"
 	"time"
 
 	"github.com/leonhfr/cete/pkg/engine"
@@ -50,12 +52,16 @@ func Run(ctx context.Context, input Input) (*chess.Game, error) {
 }
 
 // RunWithLive plays a game and broadcast it to a live view.
-func RunWithLive(ctx context.Context, input Input, static fs.FS, port int) (*chess.Game, error) {
-	view, err := live.New(static, port)
+func RunWithLive(ctx context.Context, input Input, static fs.FS, port int) (game *chess.Game, err error) {
+	view, errc, err := live.New(static, port, log.New(os.Stdout, "cete: ", 0))
 	if err != nil {
 		return nil, err
 	}
-	defer view.Shutdown()
+	defer func() {
+		if tErr := view.Shutdown(); tErr != nil {
+			err = tErr
+		}
+	}()
 
 	white, black, err := startEngines(input)
 	if err != nil {
@@ -66,11 +72,13 @@ func RunWithLive(ctx context.Context, input Input, static fs.FS, port int) (*che
 
 	view.Wait()
 
-	game := chess.NewGame()
+	game = chess.NewGame()
 	for game.Outcome() == chess.NoOutcome {
 		select {
 		case <-ctx.Done():
 			return game, nil
+		case err := <-errc:
+			return game, err
 		default:
 		}
 
@@ -82,7 +90,7 @@ func RunWithLive(ctx context.Context, input Input, static fs.FS, port int) (*che
 		view.Update(move, game.Position())
 	}
 
-	return game, nil
+	return game, err
 }
 
 // playMove plays a single move.
