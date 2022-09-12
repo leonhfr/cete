@@ -10,6 +10,8 @@ Installation is only done via the `go` command for now:
 go install github.com/leonhfr/cete@latest
 ```
 
+Binaries are also available for direct download in the `Releases` tab.
+
 ## Quick start
 
 Play a game using flags:
