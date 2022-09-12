@@ -1,4 +1,5 @@
-package game
+// Package engine implements helper functions to easily manage UCI engines.
+package engine
 
 import (
 	"fmt"
@@ -14,7 +15,8 @@ import (
 	"github.com/notnil/chess"
 )
 
-func new(exec string, len int, color chess.Color, options map[string]string) (*uci.Engine, error) {
+// Start starts a UCI engine and sets it up to run searches.
+func Start(exec string, len int, color chess.Color, options map[string]string) (*uci.Engine, error) {
 	name := path.Base(exec)
 	ew := newEngineWriter(name, len, color)
 	logFn := uci.Logger(log.New(ew, "", 0))
@@ -38,7 +40,8 @@ func new(exec string, len int, color chess.Color, options map[string]string) (*u
 	return e, nil
 }
 
-func search(e *uci.Engine, p *chess.Position, moveTime time.Duration) (*chess.Move, error) {
+// Search runs a single search.
+func Search(e *uci.Engine, p *chess.Position, moveTime time.Duration) (*chess.Move, error) {
 	err := e.Run(
 		uci.CmdPosition{Position: p},
 		uci.CmdGo{MoveTime: moveTime},
@@ -49,7 +52,13 @@ func search(e *uci.Engine, p *chess.Position, moveTime time.Duration) (*chess.Mo
 	return e.SearchResults().BestMove, nil
 }
 
-func nameLength(exec1, exec2 string) int {
+// Close gracefully shuts down an engine.
+func Close(e *uci.Engine) {
+	e.Close()
+}
+
+// NameLength returns the length of the longest od two base names.
+func NameLength(exec1, exec2 string) int {
 	name1 := path.Base(exec1)
 	name2 := path.Base(exec2)
 	return int(math.Max(float64(len(name1)), float64(len(name2))))
@@ -72,6 +81,7 @@ func newEngineWriter(name string, len int, c chess.Color) engineWriter {
 	}
 }
 
+// Write implements the io.Writer interface.
 func (ew engineWriter) Write(p []byte) (n int, err error) {
 	prefix := fmt.Sprintf("%*s:", ew.len-len(ew.name), ew.name)
 	n, err = ew.ansi.Fprint(os.Stdout, prefix)

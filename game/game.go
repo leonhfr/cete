@@ -6,6 +6,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/leonhfr/cete/engine"
 	"github.com/leonhfr/cete/uci"
 	"github.com/notnil/chess"
 )
@@ -21,20 +22,13 @@ type Input struct {
 
 // Run plays a game.
 func Run(ctx context.Context, input Input) (*chess.Game, error) {
-	len := nameLength(input.WhiteEngine, input.BlackEngine)
-
-	white, err := new(input.WhiteEngine, len, chess.White, input.WhiteOptions)
+	white, black, err := startEngines(input)
 	if err != nil {
 		return nil, err
 	}
 
-	black, err := new(input.BlackEngine, len, chess.Black, input.BlackOptions)
-	if err != nil {
-		return nil, err
-	}
-
-	defer white.Close()
-	defer black.Close()
+	defer engine.Close(white)
+	defer engine.Close(black)
 
 	return runGame(ctx, input, white, black)
 }
@@ -53,9 +47,9 @@ func runGame(ctx context.Context, input Input, white, black *uci.Engine) (*chess
 
 		switch game.Position().Turn() {
 		case chess.White:
-			move, err = search(white, game.Position(), input.Time)
+			move, err = engine.Search(white, game.Position(), input.Time)
 		case chess.Black:
-			move, err = search(black, game.Position(), input.Time)
+			move, err = engine.Search(black, game.Position(), input.Time)
 		case chess.NoColor:
 			err = errors.New("expected valid color")
 		}
@@ -70,4 +64,20 @@ func runGame(ctx context.Context, input Input, white, black *uci.Engine) (*chess
 	}
 
 	return game, nil
+}
+
+func startEngines(input Input) (*uci.Engine, *uci.Engine, error) {
+	len := engine.NameLength(input.WhiteEngine, input.BlackEngine)
+
+	white, err := engine.Start(input.WhiteEngine, len, chess.White, input.WhiteOptions)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	black, err := engine.Start(input.BlackEngine, len, chess.Black, input.BlackOptions)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return white, black, nil
 }
