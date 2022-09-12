@@ -1,6 +1,6 @@
 run:
   skip-dirs:
-    - "uci"
+    - "pkg/uci"
 
 linters:
   enable:

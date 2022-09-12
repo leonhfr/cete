@@ -19,7 +19,7 @@ var StockfishPath string
 
 func init() {
 	dir, _ := os.Getwd()
-	StockfishPath = filepath.Join(dir, "..", "stockfish")
+	StockfishPath = filepath.Join(dir, "../..", "stockfish")
 }
 
 func Example() {
@@ -125,17 +125,15 @@ func TestLogger(t *testing.T) {
 	}
 }
 
-var (
-	infoRegex = regexp.MustCompile("(?m)[\r\n]+^.*info.*$")
-)
+var infoRegex = regexp.MustCompile("(?m)[\r\n]+^.*info.*$")
 
 const (
 	logOutput = `uci
 Stockfish 14.1 by the Stockfish developers (see AUTHORS file)
 id name Stockfish 14.1
 id author the Stockfish developers (see AUTHORS file)
-	
-option name Debug Log File type string default 
+
+option name Debug Log File type string default
 option name Threads type spin default 1 min 1 max 512
 option name Hash type spin default 16 min 1 max 33554432
 option name Clear Hash type button
