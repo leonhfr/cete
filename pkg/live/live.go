@@ -15,7 +15,6 @@ import (
 
 // View represents a live web view.
 type View struct {
-	errc   chan error
 	logger *log.Logger
 	server *http.Server
 }
@@ -37,11 +36,11 @@ func New(static fs.FS, port int, logger *log.Logger) (*View, chan error, error) 
 	}
 
 	go func() {
+		defer close(errc)
 		errc <- server.Serve(l)
 	}()
 
 	return &View{
-		errc:   errc,
 		logger: logger,
 		server: server,
 	}, errc, nil
@@ -59,7 +58,7 @@ func (v *View) Update(move *chess.Move, position *chess.Position) {
 func (v *View) Shutdown() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	defer close(v.errc)
+
 	if err := v.server.Shutdown(ctx); err != http.ErrServerClosed {
 		return err
 	}
