@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/leonhfr/cete/game"
+	"github.com/leonhfr/cete/pkg/game"
 	"github.com/spf13/cobra"
 )
 

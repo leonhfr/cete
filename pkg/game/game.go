@@ -6,8 +6,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/leonhfr/cete/engine"
-	"github.com/leonhfr/cete/uci"
+	"github.com/leonhfr/cete/internal/uci"
+	"github.com/leonhfr/cete/pkg/engine"
 	"github.com/notnil/chess"
 )
 

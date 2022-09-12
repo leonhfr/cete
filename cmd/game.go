@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/fatih/structs"
-	"github.com/leonhfr/cete/game"
+	"github.com/leonhfr/cete/pkg/game"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )
