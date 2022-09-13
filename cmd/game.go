@@ -86,7 +86,7 @@ func runGame(ctx context.Context, static fs.FS, input game.Input, options option
 
 // parseYAML parses and validates the yaml file input
 func parseYAML(filename string) (*yamlInput, error) {
-	var input *yamlInput
+	input := &yamlInput{}
 	contents, err := os.ReadFile(filename)
 	if err != nil {
 		return input, err
