@@ -11,7 +11,7 @@ import (
 	"time"
 
 	ansi "github.com/fatih/color"
-	"github.com/leonhfr/cete/pkg/uci"
+	"github.com/leonhfr/cete/internal/uci"
 	"github.com/notnil/chess"
 )
 

@@ -9,9 +9,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/leonhfr/cete/internal/uci"
 	"github.com/leonhfr/cete/pkg/engine"
 	"github.com/leonhfr/cete/pkg/live"
-	"github.com/leonhfr/cete/pkg/uci"
 	"github.com/notnil/chess"
 )
 
