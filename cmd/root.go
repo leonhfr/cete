@@ -93,9 +93,9 @@ func getInput(cmd *cobra.Command) game.Input {
 
 // getOptions returns the options from the root command persistent flags
 func getOptions(cmd *cobra.Command) options {
-	broadcast, _ := cmd.PersistentFlags().GetBool(broadcast)
-	noPGN, _ := cmd.PersistentFlags().GetBool(noPGN)
-	port, _ := cmd.PersistentFlags().GetInt(port)
+	broadcast, _ := cmd.Flags().GetBool(broadcast)
+	noPGN, _ := cmd.Flags().GetBool(noPGN)
+	port, _ := cmd.Flags().GetInt(port)
 
 	return options{
 		broadcast: broadcast,
