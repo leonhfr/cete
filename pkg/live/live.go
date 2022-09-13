@@ -3,6 +3,7 @@ package live
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/fs"
 	"log"
@@ -15,8 +16,9 @@ import (
 
 // View represents a live web view.
 type View struct {
-	logger *log.Logger
-	server *http.Server
+	logger   *log.Logger
+	serveMux http.ServeMux
+	shutdown func() error
 }
 
 // New creates a new live view.
@@ -28,9 +30,14 @@ func New(static fs.FS, port int, logger *log.Logger) (*View, chan error, error) 
 	}
 	logger.Printf("listening on http://%v", l.Addr())
 
-	handler := newViewHandler(static)
+	view := &View{
+		logger: logger,
+	}
+
+	view.serveMux.Handle("/", http.FileServer(http.FS(static)))
+
 	server := &http.Server{
-		Handler:      handler,
+		Handler:      view,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
@@ -40,10 +47,16 @@ func New(static fs.FS, port int, logger *log.Logger) (*View, chan error, error) 
 		errc <- server.Serve(l)
 	}()
 
-	return &View{
-		logger: logger,
-		server: server,
-	}, errc, nil
+	view.shutdown = func() error {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := server.Shutdown(ctx); !errors.Is(err, http.ErrServerClosed) {
+			return err
+		}
+		return nil
+	}
+
+	return view, errc, nil
 }
 
 // Wait awaits that the user confirms the view is live.
@@ -56,28 +69,10 @@ func (v *View) Update(move *chess.Move, position *chess.Position) {
 
 // Shutdown shuts down the live view gracefully.
 func (v *View) Shutdown() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	if err := v.server.Shutdown(ctx); err != http.ErrServerClosed {
-		return err
-	}
-	return nil
-}
-
-// viewHandler enables broadcasting of a chess game
-type viewHandler struct {
-	serveMux http.ServeMux
-}
-
-// newViewHandler creates a new viewHandler
-func newViewHandler(static fs.FS) *viewHandler {
-	vh := &viewHandler{}
-	vh.serveMux.Handle("/", http.FileServer(http.FS(static)))
-	return vh
+	return v.shutdown()
 }
 
 // ServeHTTP implements the http.Handler interface.
-func (vh *viewHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	vh.serveMux.ServeHTTP(w, r)
+func (v *View) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	v.serveMux.ServeHTTP(w, r)
 }

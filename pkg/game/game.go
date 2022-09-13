@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io/fs"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
@@ -52,16 +53,12 @@ func Run(ctx context.Context, input Input) (*chess.Game, error) {
 }
 
 // RunWithLive plays a game and broadcast it to a live view.
-func RunWithLive(ctx context.Context, input Input, static fs.FS, port int) (game *chess.Game, err error) {
+func RunWithLive(ctx context.Context, input Input, static fs.FS, port int) (*chess.Game, error) {
 	view, errc, err := live.New(static, port, log.New(os.Stdout, "cete: ", 0))
 	if err != nil {
 		return nil, err
 	}
-	defer func() {
-		if tErr := view.Shutdown(); tErr != nil {
-			err = tErr
-		}
-	}()
+	defer func() { _ = view.Shutdown() }()
 
 	white, black, err := startEngines(input)
 	if err != nil {
@@ -72,13 +69,15 @@ func RunWithLive(ctx context.Context, input Input, static fs.FS, port int) (game
 
 	view.Wait()
 
-	game = chess.NewGame()
+	game := chess.NewGame()
 	for game.Outcome() == chess.NoOutcome {
 		select {
 		case <-ctx.Done():
 			return game, nil
 		case err := <-errc:
-			return game, err
+			if !errors.Is(err, http.ErrServerClosed) {
+				return game, err
+			}
 		default:
 		}
 
