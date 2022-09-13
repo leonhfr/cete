@@ -14,17 +14,26 @@ Binaries are also available for direct download in the `Releases` tab.
 
 ## Quick start
 
-Play a game using flags:
+### Terminal only
+
+![](docs/cete.gif)
 
 ```sh
+# Play a game using flags:
 # Engines can be binaries in the PATH or file paths to the binaries:
 cete --white stockfish --black ./honeybadger
+
+# Play a game using a configuration file:
+cete game ./test/data/stockfish.yaml
 ```
 
-Play a game using a configuration file:
+### Terminal and live view
+
+![](docs/cete-game.gif)
 
 ```sh
-cete game ./test/data/stockfish.yaml
+# Just add the --broadcast (-b) flag, cete will wait for the user to press the start button in the live view
+cete game -b ./test/data/stockfish.yaml
 ```
 
 An example of a configuration can be found in `/test/data`.
