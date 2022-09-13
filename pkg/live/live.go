@@ -80,10 +80,13 @@ func New(static fs.FS, port int, logger *log.Logger) (*View, chan error, error) 
 }
 
 // Wait awaits that the user confirms the view is live.
-func (v *View) Wait() {
+func (v *View) Wait(ctx context.Context) {
 	v.logger.Printf("live view on http://localhost:%d\n", v.port)
 	v.logger.Printf("press start to continue\n")
-	<-v.wait
+	select {
+	case <-v.wait:
+	case <-ctx.Done():
+	}
 }
 
 // Update updates the live view with the latest move and position.

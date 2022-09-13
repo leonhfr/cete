@@ -67,7 +67,7 @@ func RunWithLive(ctx context.Context, input Input, static fs.FS, port int) (*che
 	defer engine.Close(white)
 	defer engine.Close(black)
 
-	view.Wait()
+	view.Wait(ctx)
 
 	game := chess.NewGame()
 	for game.Outcome() == chess.NoOutcome {
