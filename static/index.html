@@ -47,6 +47,39 @@
           console.log(`Play failed: ${err}`);
         }
       }
+
+
+      function dial() {
+        const conn = new WebSocket(`ws://${location.host}/subscribe`);
+
+        conn.addEventListener("close", e => {
+          console.log(`WebSocket disconnected, code: ${e.code}, reason: ${e.reason}`);
+          if (e.code !== 1001) {
+            console.log("Reconnecting in 1s");
+            setTimeout(dial, 1000);
+          }
+        });
+
+        conn.addEventListener("open", e => {
+          console.log("WebSocket connected");
+        });
+
+        conn.addEventListener("message", e => {
+          try {
+            const { move, position } = JSON.parse(e.data);
+            if (position) {
+              board.position(position, false);
+            }
+            if (move) {
+              board.move(`${move.substring(0,2)}-${move.substring(2,4)}`);
+            }
+          } catch (err) {
+            console.log(`Unexpected event: ${e.data}, error: ${err}`);
+          }
+        });
+      }
+
+      dial();
     </script>
   </body>
 </html>

@@ -86,7 +86,10 @@ func RunWithLive(ctx context.Context, input Input, static fs.FS, port int) (*che
 			return game, err
 		}
 
-		view.Update(move, game.Position())
+		err = view.Update(move, game.Position())
+		if err != nil {
+			return game, err
+		}
 	}
 
 	return game, err
