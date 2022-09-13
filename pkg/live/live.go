@@ -16,9 +16,11 @@ import (
 
 // View represents a live web view.
 type View struct {
+	port     int
 	logger   *log.Logger
 	serveMux http.ServeMux
 	shutdown func() error
+	wait     chan struct{}
 }
 
 // New creates a new live view.
@@ -28,13 +30,15 @@ func New(static fs.FS, port int, logger *log.Logger) (*View, chan error, error) 
 	if err != nil {
 		return nil, errc, err
 	}
-	logger.Printf("listening on http://%v", l.Addr())
 
 	view := &View{
+		port:   port,
 		logger: logger,
+		wait:   make(chan struct{}),
 	}
 
 	view.serveMux.Handle("/", http.FileServer(http.FS(static)))
+	view.serveMux.HandleFunc("/start", view.startHandler)
 
 	server := &http.Server{
 		Handler:      view,
@@ -60,7 +64,11 @@ func New(static fs.FS, port int, logger *log.Logger) (*View, chan error, error) 
 }
 
 // Wait awaits that the user confirms the view is live.
-func (v *View) Wait() {}
+func (v *View) Wait() {
+	v.logger.Printf("live view on http://localhost:%d\n", v.port)
+	v.logger.Printf("press start to continue\n")
+	<-v.wait
+}
 
 // Update updates the live view with the latest move and position.
 func (v *View) Update(move *chess.Move, position *chess.Position) {
@@ -75,4 +83,21 @@ func (v *View) Shutdown() error {
 // ServeHTTP implements the http.Handler interface.
 func (v *View) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	v.serveMux.ServeHTTP(w, r)
+}
+
+// startHandler receives the start request that confirms the view is live
+// and unblocks the wait function
+func (v *View) startHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
+	}
+	defer w.WriteHeader(http.StatusAccepted)
+
+	select {
+	case <-v.wait:
+		return
+	default:
+		close(v.wait)
+	}
 }

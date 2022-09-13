@@ -37,11 +37,15 @@
     <script src="js/jquery-3.5.1.min.js"></script>
     <script src="js/chessboard-1.0.0.min.js"></script>
     <script>
-      const board = Chessboard('chessBoard', 'start');
+      const board = Chessboard("chessBoard", "start");
       $(window).resize(board.resize);
 
-      function start() {
-        console.log('start');
+      async function start() {
+        try {
+          await fetch("/start", { method: "POST", body: "" })
+        } catch (err) {
+          console.log(`Play failed: ${err}`);
+        }
       }
     </script>
   </body>
