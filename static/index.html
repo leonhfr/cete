@@ -2,8 +2,21 @@
 <html>
   <head>
     <title>cete live view</title>
+    <link rel="stylesheet" href="css/chessboard-1.0.0.min.css" />
+    <style>
+      #chessBoard {
+        width: 80%;
+        margin: auto;
+      }
+    </style>
   </head>
   <body>
-    <h1>Live view</h1>
+    <div id="chessBoard"></div>
+    <script src="js/jquery-3.5.1.min.js"></script>
+    <script src="js/chessboard-1.0.0.min.js"></script>
+    <script>
+      const board = Chessboard('chessBoard', 'start');
+      $(window).resize(board.resize);
+    </script>
   </body>
 </html>
