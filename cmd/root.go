@@ -37,12 +37,11 @@ var version = "0.0.0"
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "cete",
-	Short: "Pit UCI chess engines against each other",
-	Long: `cete pits chess engines against each other.
+	Short: "Pit UCI-compliant chess engines against each other",
+	Long: `cete pits UCI-compliant chess engines against each other.
 
-cete is the collective noun for a group of honey badgers,
-which makes sense as cete was originally developed to
-more easily test the honey badger chess engine.`,
+Cete was originally developed to easily test the honey badger chess engine.
+A cete is a group of honey badgers.`,
 	Args:              cobra.MatchAll(cobra.NoArgs),
 	Example:           "  cete -b --white stockfish --black stockfish",
 	Version:           version,

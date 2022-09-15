@@ -34,7 +34,7 @@ var gameCmd = &cobra.Command{
 	Short: "play a game using a yaml template file",
 	Long: `The game command allows you to play a game
 using a yaml template file instead of passing all the
-options every call.`,
+options as flags.`,
 	Args:    cobra.MatchAll(cobra.ExactArgs(1)),
 	Example: "  cete game ./game.yaml -b",
 	RunE: func(cmd *cobra.Command, args []string) error {

@@ -2,6 +2,8 @@
 
 Cete is a CLI to pit UCI-compliant chess engines against each other.
 
+Cete was originally developed to easily test the [honey badger](https://github.com/leonhfr/honeybadger) chess engine. A cete is a group of honey badgers.
+
 ## Installation
 
 Installation is only done via the `go` command for now:
