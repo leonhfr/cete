@@ -171,7 +171,11 @@ func (cmd CmdPosition) String() string {
 }
 
 // ProcessResponse implements the Cmd interface
-func (CmdPosition) ProcessResponse(e *Engine) error {
+func (cmd CmdPosition) ProcessResponse(e *Engine) error {
+	e.position = cmd.Position
+	for _, move := range cmd.Moves {
+		e.position = e.position.Update(move)
+	}
 	return nil
 }
 
@@ -286,13 +290,13 @@ func (CmdGo) ProcessResponse(e *Engine) error {
 			if len(parts) <= 1 {
 				return errors.New("best move not found " + text)
 			}
-			bestMove, err := chess.UCINotation{}.Decode(nil, parts[1])
+			bestMove, err := chess.UCINotation{}.Decode(e.position, parts[1])
 			if err != nil {
 				return err
 			}
 			results.BestMove = bestMove
 			if len(parts) >= 4 {
-				ponderMove, err := chess.UCINotation{}.Decode(nil, parts[3])
+				ponderMove, err := chess.UCINotation{}.Decode(e.position, parts[3])
 				if err != nil {
 					return err
 				}

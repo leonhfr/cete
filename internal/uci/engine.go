@@ -9,20 +9,23 @@ import (
 	"os/exec"
 	"sync"
 	"syscall"
+
+	"github.com/notnil/chess"
 )
 
 // Engine represents a UCI compliant chess engine (e.g. Stockfish, Shredder, etc.).
 // Engine is safe for concurrent use.
 type Engine struct {
-	cmd     *exec.Cmd
-	in      *io.PipeWriter
-	out     *io.PipeReader
-	debug   bool
-	logger  *log.Logger
-	id      map[string]string
-	options map[string]Option
-	results SearchResults
-	mu      *sync.RWMutex
+	cmd      *exec.Cmd
+	in       *io.PipeWriter
+	out      *io.PipeReader
+	debug    bool
+	logger   *log.Logger
+	id       map[string]string
+	options  map[string]Option
+	results  SearchResults
+	mu       *sync.RWMutex
+	position *chess.Position
 }
 
 // Debug is an option for the New function to add logging for debugging.  This will
