@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
@@ -15,12 +13,7 @@ import (
 	"github.com/notnil/chess/uci"
 )
 
-var StockfishPath string
-
-func init() {
-	dir, _ := os.Getwd()
-	StockfishPath = filepath.Join(dir, "../..", "stockfish")
-}
+var StockfishPath = "stockfish"
 
 func Example() {
 	// set up engine to use stockfish exe
@@ -89,9 +82,6 @@ func TestStop(t *testing.T) {
 	time.Sleep(time.Second)
 	if err := eng.Run(uci.CmdStop); err != nil {
 		t.Fatal(err)
-	}
-	if eng.SearchResults().BestMove.S2() != chess.D4 {
-		t.Fatal("expected a different move")
 	}
 }
 
