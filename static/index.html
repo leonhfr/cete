@@ -37,8 +37,33 @@
     <script src="js/jquery-3.5.1.min.js"></script>
     <script src="js/chessboard-1.0.0.min.js"></script>
     <script>
-      const board = Chessboard("chessBoard", "start");
+      const moveSpeed = 200; // ms
+      const config ={
+        position: 'start',
+        moveSpeed,
+      };
+      const board = Chessboard("chessBoard", config);
       $(window).resize(board.resize);
+
+      async function update(move, castlingMove, position) {
+        if (!move && !castlingMove && position) {
+          board.position(position, true);
+          return;
+        }
+
+        if (move) {
+          board.move(move);
+        }
+        if (castlingMove) {
+          board.move(castlingMove);
+        }
+
+        if (position) {
+          await new Promise(resolve => setTimeout(resolve, moveSpeed));
+
+          board.position(position, false)
+        }
+      }
 
       async function start() {
         try {
@@ -66,13 +91,8 @@
 
         conn.addEventListener("message", e => {
           try {
-            const { move, position } = JSON.parse(e.data);
-            if (position) {
-              board.position(position, false);
-            }
-            if (move) {
-              board.move(`${move.substring(0,2)}-${move.substring(2,4)}`);
-            }
+            const { move, castlingMove,position } = JSON.parse(e.data);
+            update(move, castlingMove, position);
           } catch (err) {
             console.log(`Unexpected event: ${e.data}, error: ${err}`);
           }
