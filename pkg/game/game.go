@@ -4,7 +4,6 @@ package game
 import (
 	"context"
 	"errors"
-	"io/fs"
 	"log"
 	"net/http"
 	"os"
@@ -53,8 +52,8 @@ func Run(ctx context.Context, input Input) (*chess.Game, error) {
 }
 
 // RunWithLive plays a game and broadcast it to a live view.
-func RunWithLive(ctx context.Context, input Input, static fs.FS, port int) (*chess.Game, error) {
-	view, errc, err := live.New(static, port, log.New(os.Stdout, "cete: ", 0))
+func RunWithLive(ctx context.Context, input Input, port int) (*chess.Game, error) {
+	view, errc, err := live.New(port, log.New(os.Stdout, "cete: ", 0))
 	if err != nil {
 		return nil, err
 	}

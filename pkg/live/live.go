@@ -6,13 +6,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/fs"
 	"log"
 	"net"
 	"net/http"
 	"sync"
 	"time"
 
+	"github.com/leonhfr/cete/static"
 	"github.com/notnil/chess"
 	"nhooyr.io/websocket"
 )
@@ -36,7 +36,7 @@ type subscriber struct {
 }
 
 // New creates a new live view.
-func New(static fs.FS, port int, logger *log.Logger) (*View, chan error, error) {
+func New(port int, logger *log.Logger) (*View, chan error, error) {
 	errc := make(chan error, 1)
 	l, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
@@ -52,7 +52,7 @@ func New(static fs.FS, port int, logger *log.Logger) (*View, chan error, error) 
 		wait:                   make(chan struct{}),
 	}
 
-	view.serveMux.Handle("/", http.FileServer(http.FS(static)))
+	view.serveMux.Handle("/", http.FileServer(http.FS(static.FileSystem)))
 	view.serveMux.HandleFunc("/start", view.startHandler)
 	view.serveMux.HandleFunc("/subscribe", view.subscribeHandler)
 

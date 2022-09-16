@@ -3,18 +3,11 @@ package cmd
 
 import (
 	"context"
-	"io/fs"
 	"os"
 	"time"
 
 	"github.com/leonhfr/cete/pkg/game"
 	"github.com/spf13/cobra"
-)
-
-type key int
-
-const (
-	staticKey key = iota
 )
 
 // options represents the global options
@@ -49,7 +42,6 @@ A cete is a group of honey badgers.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runGame(
 			cmd.Context(),
-			getStatic(cmd),
 			getInput(cmd),
 			getOptions(cmd),
 		)
@@ -57,8 +49,7 @@ A cete is a group of honey badgers.`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
-func Execute(ctx context.Context, static fs.FS) {
-	ctx = context.WithValue(ctx, staticKey, static)
+func Execute(ctx context.Context) {
 	err := rootCmd.ExecuteContext(ctx)
 	if err != nil {
 		os.Exit(1)
@@ -101,9 +92,4 @@ func getOptions(cmd *cobra.Command) options {
 		noPGN:     noPGN,
 		port:      port,
 	}
-}
-
-// getStatic returns the static filesystem from the root command context
-func getStatic(cmd *cobra.Command) fs.FS {
-	return cmd.Context().Value(staticKey).(fs.FS)
 }

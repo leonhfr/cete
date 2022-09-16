@@ -10,8 +10,4 @@ import (
 var embedded embed.FS
 
 // FileSystem provides access to the static assets.
-var FileSystem fs.FS
-
-func init() {
-	FileSystem = fs.FS(embedded)
-}
+var FileSystem = fs.FS(embedded)

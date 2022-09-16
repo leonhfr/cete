@@ -7,12 +7,11 @@ import (
 	"os/signal"
 
 	"github.com/leonhfr/cete/cmd"
-	"github.com/leonhfr/cete/static"
 )
 
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
-	cmd.Execute(ctx, static.FileSystem)
+	cmd.Execute(ctx)
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/fs"
 	"os"
 	"time"
 
@@ -45,7 +44,6 @@ options as flags.`,
 
 		return runGame(
 			cmd.Context(),
-			getStatic(cmd),
 			game.Input{
 				WhiteEngine:  input.White.Engine,
 				BlackEngine:  input.Black.Engine,
@@ -63,12 +61,12 @@ func init() {
 }
 
 // runGame runs a game
-func runGame(ctx context.Context, static fs.FS, input game.Input, options options) error {
+func runGame(ctx context.Context, input game.Input, options options) error {
 	var g *chess.Game
 	var err error
 
 	if options.broadcast {
-		g, err = game.RunWithLive(ctx, input, static, options.port)
+		g, err = game.RunWithLive(ctx, input, options.port)
 	} else {
 		g, err = game.Run(ctx, input)
 	}
