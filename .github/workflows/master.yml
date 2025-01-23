@@ -23,11 +23,12 @@ jobs:
           cache: true
           go-version-file: go.mod
 
-      - uses: engineerd/configurator@v0.0.8
+      - name: Install stockfish
+        uses: engineerd/configurator@v0.0.8
         with:
-          name: "stockfish"
-          url: "https://stockfishchess.org/files/stockfish_14.1_linux_x64.zip"
-          pathInArchive: "stockfish_14.1_linux_x64/stockfish_14.1_linux_x64"
+          name: stockfish
+          url: https://stockfishchess.org/files/stockfish_14.1_linux_x64.zip
+          pathInArchive: stockfish_14.1_linux_x64/stockfish_14.1_linux_x64
 
       - name: Lint
         uses: golangci/golangci-lint-action@v3
